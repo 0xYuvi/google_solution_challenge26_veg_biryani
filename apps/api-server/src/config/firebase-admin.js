@@ -30,11 +30,17 @@ const parseServiceAccountJson = (raw) => {
 };
 
 const readLocalServiceAccount = () => {
-  const localPath = path.resolve(__dirname, '../../firebase-service-account.json');
-  if (!fs.existsSync(localPath)) return null;
+  // Check the root of api-server
+  const rootPath = path.resolve(__dirname, '../../firebase-service-account.json');
+  // Check the current config directory (where I told the user to put it)
+  const configPath = path.resolve(__dirname, './firebase-service-account.json');
+  
+  const targetPath = fs.existsSync(configPath) ? configPath : rootPath;
+  
+  if (!fs.existsSync(targetPath)) return null;
 
   try {
-    const parsed = JSON.parse(fs.readFileSync(localPath, 'utf8'));
+    const parsed = JSON.parse(fs.readFileSync(targetPath, 'utf8'));
     return isValidServiceAccount(parsed) ? parsed : null;
   } catch {
     return null;

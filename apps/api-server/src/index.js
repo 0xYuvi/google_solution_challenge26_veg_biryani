@@ -18,8 +18,9 @@ app.set("trust proxy", 1);
  * CORS configuration (dynamic and environment-safe)
  */
 const allowedOrigins = [
-  "*",
   "http://localhost:4200",
+  "https://veg-biryani.web.app",
+  "https://veg-biryani.firebaseapp.com",
   process.env.CLIENT_URL
 ];
 

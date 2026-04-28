@@ -5,7 +5,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 export const generateJSON = async (prompt, imageParts = []) => {
   const contents = [...imageParts, prompt];
   const response = await ai.models.generateContent({
-    model: 'gemini-flash-latest',
+    model: 'gemini-2.5-flash',
     contents,
     config: { responseMimeType: 'application/json' }
   });

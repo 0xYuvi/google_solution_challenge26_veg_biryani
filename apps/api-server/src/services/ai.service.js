@@ -2,6 +2,10 @@ import vision from '@google-cloud/vision';
 import speech from '@google-cloud/speech';
 import { Translate } from '@google-cloud/translate/build/src/v2/index.js';
 import { getAudioEncoding } from '../utils/audioEncoding.js';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 // ===================== OCR =====================
 const visionClient = new vision.ImageAnnotatorClient();
@@ -108,25 +112,58 @@ export const translateToEnglish = async (text) => {
   }
 };
 
-export const analyzeSurvey = async (data) => {
-  return {
-    issues: [
-      {
-        title: "Water shortage",
-        description: "No clean water available",
-        category: "SANITATION",
-        urgency: 8,
-        priorityScore: 7.5
-      }
-    ]
-  };
+export const analyzeSurvey = async (text) => {
+  try {
+    const prompt = `
+      Analyze the following community survey text and extract key local issues.
+      Return the result strictly as a JSON array of objects with these fields:
+      title (short), description (detailed), category (one of: WATER, SANITATION, INFRASTRUCTURE, HEALTH, EDUCATION, FOOD_SECURITY, EMERGENCY), urgency (1-10), priorityScore (0-10 calculation based on impact).
+
+      Survey Text: "${text}"
+    `;
+
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
+    
+    const jsonStr = responseText.replace(/```json|```/g, "").trim();
+    return JSON.parse(jsonStr);
+  } catch (err) {
+    console.error('Gemini analyzeSurvey Error:', err);
+    return [{
+      title: "Issue Analysis Failed",
+      description: text.substring(0, 100),
+      category: "EMERGENCY",
+      urgency: 5,
+      priorityScore: 5
+    }];
+  }
 };
 
 export const classifyIssue = async (text) => {
-  return {
-    category: "SANITATION",
-    urgency: 7,
-    priorityScore: 6.5,
-    summary: "Issue classified"
-  };
+  try {
+    const prompt = `
+      Classify the following community issue description.
+      Return the result strictly as a JSON object with these fields:
+      category (one of: WATER, SANITATION, INFRASTRUCTURE, HEALTH, EDUCATION, FOOD_SECURITY, EMERGENCY), 
+      urgency (integer 1-10), 
+      priorityScore (float 0-10 based on severity),
+      summary (one sentence summary).
+
+      Issue Description: "${text}"
+    `;
+
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
+    
+    const jsonStr = responseText.replace(/```json|```/g, "").trim();
+    return JSON.parse(jsonStr);
+  } catch (err) {
+    console.error('Gemini classifyIssue Error:', err);
+    return {
+      category: "EMERGENCY",
+      urgency: 1,
+      priorityScore: 1,
+      summary: "Classification failed"
+    };
+  }
 };

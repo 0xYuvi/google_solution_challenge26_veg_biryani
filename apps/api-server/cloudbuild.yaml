@@ -2,9 +2,9 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 steps:
-  # 1. Build Docker image from /backend
+  # 1. Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    dir: 'backend'
+    dir: '.'
     args:
       [
         'build',

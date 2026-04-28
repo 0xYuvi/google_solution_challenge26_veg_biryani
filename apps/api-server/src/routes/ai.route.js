@@ -15,6 +15,16 @@ router.post('/classify-issue', aiController.classifyIssue);
 router.post('/generate-report', aiController.generateReport);
 router.post('/regenerate-report', aiController.regenerateReport);
 router.post(
+	'/process-field-report',
+	verifyFirebaseToken,
+	upload.fields([
+		{ name: 'files', maxCount: 10 },
+		{ name: 'docs', maxCount: 10 }
+	]),
+	aiController.processFieldReportAndCreateIssues
+);
+
+router.post(
 	'/process-field-report-and-create-issues',
 	verifyFirebaseToken,
 	upload.fields([

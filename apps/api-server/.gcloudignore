@@ -1,0 +1,8 @@
+.gcloudignore
+.git
+.gitignore
+node_modules
+.env
+
+# Do NOT ignore the service account file during cloud build
+!src/config/firebase-service-account.json

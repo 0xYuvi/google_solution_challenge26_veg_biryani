@@ -7,7 +7,7 @@
     "apps/*"
   ],
   "scripts": {
-    "dev:web": "npm run dev --workspace=apps/web-client",
+    "dev:web": "npm run start --workspace=apps/web-client",
     "dev:api": "npm run dev --workspace=apps/api-server",
     "build:web": "npm run build --workspace=apps/web-client",
     "build:api": "npm run build --workspace=apps/api-server"
