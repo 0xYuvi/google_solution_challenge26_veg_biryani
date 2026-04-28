@@ -1,0 +1,47 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+.pnp
+.pnp.js
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Local environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+.nuxt/
+
+# Operating System files
+.DS_Store
+Thumbs.db
+*.pem
+
+# Mobile / Flutter
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+
+# Firebase / Android
+**/google-services.json
+**/firebase-service-account.json
+
+# Prisma
+/generated/prisma
+
+# Misc
+.vercel
