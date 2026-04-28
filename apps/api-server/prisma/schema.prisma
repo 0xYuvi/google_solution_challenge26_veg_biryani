@@ -18,12 +18,14 @@ enum UserRole {
 enum AuthProvider {
   EMAIL
   GOOGLE
+  PHONE
 }
 
 model User {
   id            String   @id @default(cuid())
   name          String
-  email         String   @unique
+  email         String?  @unique
+  phone         String?  @unique
 
   authProvider  AuthProvider
   providerId    String?

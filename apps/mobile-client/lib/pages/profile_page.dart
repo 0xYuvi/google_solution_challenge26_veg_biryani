@@ -36,22 +36,54 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context, authService, child) {
           final profileData = authService.profileData;
           final user = authService.currentUser;
-          
-          if (profileData == null) {
+
+          if (authService.isProfileLoading && profileData == null) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+          if (profileData == null) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.person_search_outlined,
+                      size: 44,
+                      color: primaryColor,
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "We could not load your profile yet.",
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: authService.getUserProfile,
+                      child: const Text("Retry"),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
           final volunteerProfile = profileData['volunteerProfile'];
           final trustScore = profileData['trustScore'] ?? 0;
           final city = profileData['city'] ?? "Not set";
           final List<dynamic> skills = volunteerProfile?['skills'] ?? [];
           final availability = volunteerProfile?['availability'] ?? "Not set";
+          final contactLabel =
+              user?.email ??
+              user?.phoneNumber ??
+              profileData['phone'] ??
+              "No contact info";
           
           return Column(
             children: [
               ProfileHeader(
                 name: profileData?['name'] ?? user?.displayName ?? "Volunteer",
-                email: user?.email ?? "email@example.com",
+                email: contactLabel,
                 imageUrl: user?.photoURL ?? 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=2787&auto=format&fit=crop',
                 primaryColor: primaryColor,
               ),
