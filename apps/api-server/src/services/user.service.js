@@ -10,23 +10,47 @@ export const syncUserService = async (token) => {
 
   const decoded = await auth.verifyIdToken(token);
 
-  const { uid, email, name, firebase } = decoded;
+  const { uid, email, name, phone_number: phoneNumber, firebase } = decoded;
 
   const signInProvider = firebase?.sign_in_provider;
   const authProvider =
-    signInProvider === "google.com" ? "GOOGLE" : "EMAIL";
+    signInProvider === "google.com"
+      ? "GOOGLE"
+      : signInProvider === "phone"
+        ? "PHONE"
+        : "EMAIL";
+  const trimmedName = name?.trim();
+  const displayName = trimmedName || email?.split("@")[0] || phoneNumber || "User";
 
   let user = await prisma.user.findFirst({
-    where: { providerId: uid }
+    where: {
+      OR: [
+        { providerId: uid },
+        ...(email ? [{ email }] : []),
+        ...(phoneNumber ? [{ phone: phoneNumber }] : [])
+      ]
+    }
   });
 
-  if (!user) {
-    const displayName = name || email?.split("@")[0] || "User";
+  const payload = {
+    ...(trimmedName ? { name: trimmedName } : {}),
+    ...(email ? { email } : {}),
+    ...(phoneNumber ? { phone: phoneNumber } : {}),
+    authProvider,
+    providerId: uid
+  };
 
+  if (user) {
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: payload
+    });
+  } else {
     user = await prisma.user.create({
       data: {
         name: displayName,
         email,
+        phone: phoneNumber,
         authProvider,
         providerId: uid
       }
@@ -39,6 +63,7 @@ export const syncUserService = async (token) => {
       id: user.id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
       role: user.role,
       authProvider: user.authProvider,
       trustScore: user.trustScore,
